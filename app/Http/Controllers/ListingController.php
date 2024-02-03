@@ -90,7 +90,7 @@ class ListingController extends Controller
     public function edit($id)
     {
         $listing = DB::table('listings')->find($id);
-        return view('app.edit', ['listing'=>$listing]);
+        return view('app.edit', ['listing' => $listing]);
     }
 
     /**
@@ -103,7 +103,7 @@ class ListingController extends Controller
     public function update(Listing $listing, Request $request)
     {
         // it will confirm that the user is owner
-        if($listing->user_id != auth()->id()){
+        if ($listing->user_id != auth()->id()) {
             abort(403, 'unauthorized Action');
         }
         $formField = $request->validate([
@@ -135,32 +135,36 @@ class ListingController extends Controller
     // MOVE TO TRASH
     public function destroy(Listing $listing)
     {
-        if($listing->user_id != auth()->id()){
+        if ($listing->user_id != auth()->id()) {
             abort(403, 'unauthorized Action');
         }
-            $listing->delete();
-            return redirect(route('manage'))->with('success', 'Listing deleted Successfully');
-    }
-    
-    public function manage(){
-        return view('app.manage', ['listings'=>auth()->user()->listings()->get()]);
+        $listing->delete();
+        return redirect(route('manage'))->with('success', 'Listing deleted Successfully');
     }
 
-    public function manage_trash(){
-        $listing = auth()->user()->listings()->onlyTrashed()->get();
-        return view('app.manage_trash', ['listings'=>$listing]);
+    public function manage()
+    {
+        return view('app.manage', ['listings' => auth()->user()->listings()->get()]);
     }
-    public function manage_restore($id){
+
+    public function manage_trash()
+    {
+        $listing = auth()->user()->listings()->onlyTrashed()->get();
+        return view('app.manage_trash', ['listings' => $listing]);
+    }
+    public function manage_restore($id)
+    {
         $listing = Listing::withTrashed()->find($id);
-        if(!is_null($listing)){
+        if (!is_null($listing)) {
             $listing->restore();
         }
         return redirect(route('manage_trash'));
     }
 
-    public function manage_force_delete($id){
+    public function manage_force_delete($id)
+    {
         $listing = Listing::withTrashed()->find($id);
-        if(!is_null($listing)){
+        if (!is_null($listing)) {
             $listing->forceDelete();
         }
         return redirect(route('manage_trash'));
